@@ -1,35 +1,92 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { FirstKeyPipe } from '../../shared/pipes/first-key.pipe';
+import { AuthService } from '../../shared/services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-registration',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, CommonModule, FirstKeyPipe],
   templateUrl: './registration.component.html',
   styles: ``
 })
 export class RegistrationComponent {
   registerForm!: FormGroup;
-  
-  constructor(public fb: FormBuilder) { }
+  isSubmitted: boolean = false;
+
+  constructor(public fb: FormBuilder,
+    private authService: AuthService,
+    private toastr: ToastrService) { }
 
   ngOnInit() {
     this.buidForm();
   }
 
-  buidForm(){
+  buidForm() {
     this.registerForm = this.fb.group({
       fullName: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
+      userName: ['', [Validators.required]],
+      password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/(?=.*[^a-zA-Z0-9])/)]],
       confirmPassword: ['', [Validators.required]]
-    });
+    },
+      {
+        validators: this.matchPasswordValidator
+      });
   }
 
-  onSubmit(){
-    if(this.registerForm.valid){
-      console.log(this.registerForm.value);
-    } else {
-      console.log("Form is not valid");
+  matchPasswordValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+    const password = control.get('password');
+    const confirmPassword = control.get('confirmPassword');
+
+    if (!password || !confirmPassword) {
+      return null;
     }
+
+    if (password.value !== confirmPassword.value) {
+      return { passwordMismatch: true };
+    }
+
+    return null;
+  };
+
+  onSubmit() {
+    this.isSubmitted = true;
+    if (this.registerForm.valid) {
+      this.authService.createUser(this.registerForm.value).subscribe({
+        next: (response: any) => {
+          this.isSubmitted = false;
+          this.registerForm.reset();
+          this.toastr.success('New user created!', 'Registration successful');
+        },
+        error: (error: any) => {
+          if (Array.isArray(error.error)) {
+            error.error.forEach((err: any) => {
+              switch (err.code) {
+                case "DuplicateUserName":
+                  this.toastr.error('Username already exists. Please choose another username.', 'Registration failed');
+                  break;
+                case "DuplicateEmail":
+                  this.toastr.error('Email already exists. Please use another email.', 'Registration failed');
+                  break;
+                default:
+                  this.toastr.error(err.description, 'Registration failed');
+                  break;
+              }
+            });
+          } else {
+            this.toastr.error('Registration failed. Please try again.', 'Error');
+          }
+          this.isSubmitted = false;
+        }
+
+      });
+    }
+  }
+
+  hasError(controlName: string): boolean {
+    const control = this.registerForm.get(controlName);
+    return control ? control.invalid && (control.dirty || control.touched) : false;
   }
 }
