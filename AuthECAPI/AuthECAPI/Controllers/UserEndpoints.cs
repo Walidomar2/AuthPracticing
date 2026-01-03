@@ -1,5 +1,6 @@
 ﻿using AuthECAPI.Data;
 using AuthECAPI.DTOs;
+using AuthECAPI.Helpers;
 using AuthECAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -26,12 +27,12 @@ namespace AuthECAPI.Controllers
 
         private static IResult SignUp(UserManager<User> userManager,[FromBody] RegisterUserDto userDto)
         {
-            if(userDto.Password != userDto.ConfirmPassword)
+            if (userDto.Password != userDto.ConfirmPassword)
             {
                 return Results.BadRequest("Password and Confirm Password do not match.");
             }
 
-            var user = new User { FullName = userDto.FullName, Email = userDto.Email, UserName = userDto.UserName };
+            var user = UserMapper.ToUserFromRegisterUserDto(userDto);   
             var result = userManager.CreateAsync(user, userDto.Password).Result;
             if (result.Succeeded)
             {

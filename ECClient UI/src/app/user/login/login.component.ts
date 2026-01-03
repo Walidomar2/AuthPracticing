@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FirstKeyPipe } from '../../shared/pipes/first-key.pipe';
 import { AuthService } from '../../shared/services/auth.service';
 import { ToastrService } from 'ngx-toastr';
@@ -15,8 +15,12 @@ import { ToastrService } from 'ngx-toastr';
 export class LoginComponent {
   loginForm!: FormGroup;
   isSubmitted: boolean = false;
+  hasErrorMessage: boolean = false;
+  errorMessage: string = '';  
 
-  constructor(public fb: FormBuilder, private authService: AuthService, private toastr: ToastrService) { }
+  constructor(public fb: FormBuilder, 
+    private authService: AuthService, 
+    private router: Router) { }
 
   ngOnInit() {
     this.buildForm();
@@ -31,14 +35,24 @@ export class LoginComponent {
 
   onSubmit() {
     if (this.loginForm.valid) {
+      this.isSubmitted = true;
+
       this.authService.login(this.loginForm.value).subscribe({
         next: (response: any) => {
-          this.toastr.success('Login successful!'); 
+          // console.log('Login successful:', response);
+          // this.toastr.success('Login successful!');
+          localStorage.setItem('token', response);
+          this.router.navigateByUrl('/dashboard');
+          this.isSubmitted = false; 
         },
         error: (error: any) => {
-          this.toastr.error(error.error.message || 'Login failed. Please try again.');
+          this.hasErrorMessage = true;
+          this.errorMessage = error.error || 'An error occurred during login.';
+          this.isSubmitted = false;
         }
+       
       });
+
     } 
   }
 
