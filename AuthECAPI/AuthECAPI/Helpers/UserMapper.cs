@@ -5,7 +5,7 @@ namespace AuthECAPI.Helpers
 {
     public static class UserMapper
     {
-        public static User ToUserFromRegisterUserDto(RegisterUserDto dto)
+        public static User ToUserFromRegisterUserDto(this RegisterUserDto dto)
         {
             return new User
             {

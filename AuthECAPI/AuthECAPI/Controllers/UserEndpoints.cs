@@ -32,7 +32,7 @@ namespace AuthECAPI.Controllers
                 return Results.BadRequest("Password and Confirm Password do not match.");
             }
 
-            var user = UserMapper.ToUserFromRegisterUserDto(userDto);   
+            var user = userDto.ToUserFromRegisterUserDto();
             var result = userManager.CreateAsync(user, userDto.Password).Result;
             if (result.Succeeded)
             {
