@@ -44,7 +44,7 @@
                    <div class="d-flex flex-row align-items-center mb-4">
                     <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
                     <div data-mdb-input-init class="form-outline flex-fill mb-0">
-                      <input type="email" id="userName" class="form-control" placeholder="* User Name"
+                      <input type="text" id="userName" class="form-control" placeholder="* User Name"
                         formControlName="userName" />
                       <!-- <label class="form-label" for="email"><span>*</span> Your Email</label> -->
                        <div class="text-danger" *ngIf="hasError('userName')">
@@ -59,7 +59,7 @@
                   <div class="d-flex flex-row align-items-center mb-4">
                     <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
                     <div data-mdb-input-init class="form-outline flex-fill mb-0">
-                      <input type="password" id="password" class="form-control" placeholder="* password" formControlName="password" />
+                      <input type="password" id="password" class="form-control" placeholder="* Password" formControlName="password" />
                         <div class="text-danger" *ngIf="hasError('password')">
                           <ng-container [ngSwitch]="registerForm.get('password')?.errors | firstKey">
                             <div *ngSwitchCase="'required'">Password is required.</div>
@@ -86,6 +86,10 @@
                   <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
                     <button type="submit" [disabled]="!registerForm.valid || isSubmitted" data-mdb-button-init data-mdb-ripple-init
                       class="btn btn-primary btn-lg">Register</button>
+                  </div>
+
+                  <div class="text-center mt-2">
+                    <small>If you already have an account? <a routerLink="/login">Sign in</a></small>
                   </div>
 
                 </form>
