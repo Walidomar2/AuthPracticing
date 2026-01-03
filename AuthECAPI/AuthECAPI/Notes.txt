@@ -1,0 +1,35 @@
+There's two types of authentication supported by this API:
+
+1- Session-Based Authentication:
+   - This method uses session cookies to maintain user authentication state.
+   - It is suitable for web applications where users log in and maintain a session.
+   - Example usage:
+	 - User logs in via a web form.
+	 - Server sets a session cookie in the user's browser.
+	 - Subsequent requests include the session cookie for authentication.
+   - user try to login, then verify their credentials and store a New session on the DB and return the sessionID as cookie to the user
+   - saved sessionID to browser cookie and  then to access the protected resources, user sends the cookie along with the request
+   - Server verifies the sessionID from the cookie against the DB to authenticate the user.
+
+2- Token-Based Authentication:
+   - This method uses tokens (e.g., JWT) to authenticate users.
+   - It is ideal for APIs and mobile applications where stateless authentication is preferred.
+
+   - user try to login, then verify their credentials and generate a JWT token containing user information and expiration time
+   - User receives the JWT token and stores it (e.g., in local storage or memory)
+   - To access protected resources, user includes the JWT token in the Authorization header of the request
+   - Server verifies the JWT token's signature and expiration to authenticate the user.
+
+=====================================
+JWT Token Structure:
+ - Header: consists of 2 parts 
+	1- type of token (JWT) 
+	2- signing algorithm (e.g., HMAC SHA256)
+
+ - Payload: contains claims (user information and metadata)
+ - Signature: used to verify the token's integrity and authenticity
+
+=====================================
+Authentication Schemes: is a registered authentication handlers and their configurations options
+ - Session-Based Authentication Scheme: configures session management and cookie settings
+ - Token-Based Authentication Scheme: configures JWT token validation parameters (e.g., issuer, audience, signing key)

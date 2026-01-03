@@ -2,9 +2,12 @@
 using AuthECAPI.Controllers;
 using AuthECAPI.Data;
 using AuthECAPI.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace AuthECAPI
 {
@@ -23,6 +26,10 @@ namespace AuthECAPI
             //swagger for test API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.Configure<JwtOptions>(
+                    builder.Configuration.GetSection("AppSettings")
+                );
 
             // Services for Entity Framework and Identity
             builder.Services
@@ -53,6 +60,22 @@ namespace AuthECAPI
             builder.Services.AddDbContext<AppDbContext>(options =>
                     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = 
+                options.DefaultChallengeScheme = 
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(j =>
+            {
+                j.SaveToken = false;
+                j.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:JWTSecret"]!))
+                };
+
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -62,9 +85,12 @@ namespace AuthECAPI
                 app.UseSwaggerUI();
             }
 
+            // Middlewares
+            app.UseCors("AllowAngular");
+            app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseCors("AllowAngular");
+            // Mapping Endpoints
             //app.MapControllers();
             app.MapUserEndpoints();
 

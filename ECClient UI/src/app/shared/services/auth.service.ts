@@ -12,4 +12,8 @@ export class AuthService {
   createUser(formData: any) {
     return this.http.post(`${this.baseUrl}/signup`, formData);
   }
+
+  login(formData: any) {
+    return this.http.post(`${this.baseUrl}/login`, formData);
+  }
 }

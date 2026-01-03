@@ -3,6 +3,8 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { FirstKeyPipe } from '../../shared/pipes/first-key.pipe';
+import { AuthService } from '../../shared/services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
@@ -14,7 +16,7 @@ export class LoginComponent {
   loginForm!: FormGroup;
   isSubmitted: boolean = false;
 
-  constructor(public fb: FormBuilder) { }
+  constructor(public fb: FormBuilder, private authService: AuthService, private toastr: ToastrService) { }
 
   ngOnInit() {
     this.buildForm();
@@ -29,7 +31,14 @@ export class LoginComponent {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      console.log('Form Submitted!', this.loginForm.value);
+      this.authService.login(this.loginForm.value).subscribe({
+        next: (response: any) => {
+          this.toastr.success('Login successful!'); 
+        },
+        error: (error: any) => {
+          this.toastr.error(error.error.message || 'Login failed. Please try again.');
+        }
+      });
     } 
   }
 
