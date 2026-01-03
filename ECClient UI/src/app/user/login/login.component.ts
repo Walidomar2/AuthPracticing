@@ -23,6 +23,11 @@ export class LoginComponent {
     private router: Router) { }
 
   ngOnInit() {
+    const authenticated = this.authService.isAuthenticated();
+    if (authenticated) {
+      this.router.navigateByUrl('/dashboard');
+    }
+
     this.buildForm();
   }
 
@@ -47,7 +52,13 @@ export class LoginComponent {
         },
         error: (error: any) => {
           this.hasErrorMessage = true;
-          this.errorMessage = error.error || 'An error occurred during login.';
+
+          if (error.status == 400) {
+            this.errorMessage = error.error
+          }else{
+            this.errorMessage = 'An error occurred during login.';
+          }
+          
           this.isSubmitted = false;
         }
        

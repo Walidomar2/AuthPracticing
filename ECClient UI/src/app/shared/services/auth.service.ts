@@ -16,4 +16,13 @@ export class AuthService {
   login(formData: any) {
     return this.http.post(`${this.baseUrl}/login`, formData);
   }
+
+  logout() {
+    localStorage.removeItem('token');
+  }
+
+  isAuthenticated(): boolean {
+    const token = localStorage.getItem('token');
+    return !!token;
+  }
 }

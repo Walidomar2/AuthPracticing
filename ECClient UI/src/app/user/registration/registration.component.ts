@@ -4,7 +4,7 @@ import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validatio
 import { FirstKeyPipe } from '../../shared/pipes/first-key.pipe';
 import { AuthService } from '../../shared/services/auth.service';
 import { ToastrService } from 'ngx-toastr';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-registration',
@@ -18,9 +18,16 @@ export class RegistrationComponent {
 
   constructor(public fb: FormBuilder,
     private authService: AuthService,
-    private toastr: ToastrService) { }
+    private toastr: ToastrService,
+    private router: Router) { }
 
   ngOnInit() {
+
+    const authenticated = this.authService.isAuthenticated();
+    if (authenticated) {
+      this.router.navigateByUrl('/dashboard');
+    }
+
     this.buidForm();
   }
 
@@ -85,6 +92,7 @@ export class RegistrationComponent {
       });
     }
   }
+
 
   hasError(controlName: string): boolean {
     const control = this.registerForm.get(controlName);
