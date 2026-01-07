@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FirstKeyPipe } from '../../shared/pipes/first-key.pipe';
 import { AuthService } from '../../shared/services/auth.service';
 import { ToastrService } from 'ngx-toastr';
+import { AUTH_TOKEN_KEY } from '../../shared/constants';
 
 @Component({
   selector: 'app-login',
@@ -27,7 +28,7 @@ export class LoginComponent {
     if (authenticated) {
       this.router.navigateByUrl('/dashboard');
     }
-
+    
     this.buildForm();
   }
 
@@ -46,7 +47,7 @@ export class LoginComponent {
         next: (response: any) => {
           // console.log('Login successful:', response);
           // this.toastr.success('Login successful!');
-          localStorage.setItem('token', response);
+          this.authService.saveToken(response.token);
           this.router.navigateByUrl('/dashboard');
           this.isSubmitted = false; 
         },
